@@ -10,24 +10,30 @@ local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 local bookmark_actions = require('telescope._extensions.vim_bookmarks.actions')
 
-local function get_bookmarks(files)
+local function get_bookmarks(files, opts)
+    opts = opts or {}
     local bookmarks = {}
 
     for _,file in ipairs(files) do
         for _,line in ipairs(vim.fn['bm#all_lines'](file)) do
             local bookmark = vim.fn['bm#get_bookmark_by_line'](file, line)
+
             local text = bookmark.annotation ~= "" and "Annotation: " .. bookmark.annotation or bookmark.content
             if text == "" then
                 text = "(empty line)"
             end
-            
-            table.insert(bookmarks, {
-                filename = file,
-                lnum = tonumber(line),
-                col=1,
-                text = text,
-                sign_idx = bookmark.sign_idx,
-            })
+
+            local only_annotated = opts.only_annotated or false
+
+            if not (only_annotated and bookmark.annotation == "") then
+                table.insert(bookmarks, {
+                    filename = file,
+                    lnum = tonumber(line),
+                    col=1,
+                    text = text,
+                    sign_idx = bookmark.sign_idx,
+                })
+            end
         end
     end
 
@@ -90,7 +96,7 @@ local function make_bookmark_picker(filenames, opts)
     opts = opts or {}
 
     local make_finder = function()
-        local bookmarks = get_bookmarks(filenames)
+        local bookmarks = get_bookmarks(filenames, opts)
 
         if vim.tbl_isempty(bookmarks) then 
             print("No bookmarks!")

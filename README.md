@@ -45,6 +45,7 @@ Here's a list of available options along with their default values:
 | `prompt_title`    | Title of the search prompt                                          | 'vim-bookmarks'                          |
 | `width_line`      | Width reserved for the line number in the picker                    | 5                                        |
 | `width_text`      | Width reserved for the bookmark text in the picker                  | 60                                       |
+| `only_annotated`  | Only display bookmarks that have an annotation                      | false                                    |
 | `attach_mappings` | See following section                                               | {}                                       |
 
 Additionally, the table of options is passed on to your configured `qflist_previewer` and `generic_sorter` (See Telescope docs for details)
