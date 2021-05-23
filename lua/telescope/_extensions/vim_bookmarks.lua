@@ -10,6 +10,21 @@ local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 local bookmark_actions = require('telescope._extensions.vim_bookmarks.actions')
 
+local function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k, v in pairs(o) do
+            if type(k) ~= 'number' then
+                k = '"' .. k .. '"'
+            end
+            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
+    end
+end
+
 local function split(inputstr, sep)
     sep = sep or "%s"
     local t = {}
@@ -36,8 +51,8 @@ local function get_bookmarks(files, opts)
     opts = opts or {}
     local bookmarks = {}
 
-    for _, file in ipairs(files) do
-        for _, line in ipairs(vim.fn['bm#all_lines'](file.path)) do
+    for _,file in ipairs(files) do
+        for _,line in ipairs(vim.fn['bm#all_lines'](file.path)) do
             local bookmark = vim.fn['bm#get_bookmark_by_line'](file.path, line)
 
             local text = bookmark.annotation ~= "" and "Annotation: " .. bookmark.annotation or bookmark.content
@@ -51,9 +66,9 @@ local function get_bookmarks(files, opts)
                 table.insert(bookmarks, {
                     filename = file.path,
                     lnum = tonumber(line),
-                    col = 1,
+                    col=1,
                     text = text,
-                    sign_idx = bookmark.sign_idx
+                    sign_idx = bookmark.sign_idx,
                 })
             end
         end
@@ -68,20 +83,27 @@ local function make_entry_from_bookmarks(opts)
 
     local displayer = entry_display.create {
         separator = "▏",
-        items = {{
-            width = opts.width_line or 5
-        }, {
-            width = opts.width_text or 60
-        }, {
-            remaining = true
-        }}
+        items = {
+            { width = opts.width_line or 5 },
+            { width = opts.width_text or 60 },
+            { remaining = true }
+        }
     }
 
     local make_display = function(entry)
         local filename = entry.filename
         for key, pair in pairs(modified_filenames) do
             if (filename == pair.path) then
-                filename = "./" .. pair.final
+                if (table.getn(modified_filenames) == 1) then
+                    local _filename = split(filename, "/")
+                    filename = _filename[table.getn(_filename) - 1] .. "/" .. _filename[table.getn(_filename)]
+                else
+                    if (type(pair.final) == "string") then
+                        filename = "./" .. pair.final
+                    else
+                        filename = "./" .. table.concat(pair.final, "/")
+                    end
+                end
             end
         end
 
@@ -101,7 +123,7 @@ local function make_entry_from_bookmarks(opts)
             filename = entry.filename,
             lnum = entry.lnum,
             col = 1,
-            text = entry.text
+            text = entry.text,
         }
     end
 end
@@ -126,13 +148,25 @@ local function create_modified_filenames(filenames)
                         end
                     end
                     table.insert(counts, differs)
+                else
+                    table.insert(counts, 1)
                 end
             end
         end
-        local max = math.max(unpack(counts)) or 0
+        local max = math.max(unpack(counts))
         local length = table.getn(_filename)
-        local final_table = slice(_filename, max - 1, length)
-        final = table.concat(final_table, "/")
+        local final_table = nil
+        if (max == length) then
+            final_table = slice(_filename, max - 1, length)
+        else
+            final_table = slice(_filename, max, length)
+        end
+        local final = table.concat(final_table, "/")
+        if (final == path) then
+            local _final = split(final, "/")
+            local len = table.getn(_final)
+            final = slice(_final, len - 1, len)
+        end
         modified_filenames[key] = {
             path = path,
             final = final
@@ -154,14 +188,12 @@ local function make_bookmark_picker(filenames, opts)
 
         return finders.new_table {
             results = bookmarks,
-            entry_maker = make_entry_from_bookmarks(opts)
+            entry_maker = make_entry_from_bookmarks(opts),
         }
     end
 
     local initial_finder = make_finder()
-    if not initial_finder then
-        return
-    end
+    if not initial_finder then return end
 
     pickers.new(opts, {
         prompt_title = opts.prompt_title or "vim-bookmarks",
@@ -195,9 +227,7 @@ end
 
 local current_file = function(opts)
     opts = opts or {}
-    opts = vim.tbl_extend('keep', opts, {
-        hide_filename = true
-    })
+    opts = vim.tbl_extend('keep', opts, {hide_filename = true})
 
     print("Hide:", opts.hide_filename)
 
