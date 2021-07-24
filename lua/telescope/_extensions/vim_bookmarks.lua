@@ -55,7 +55,7 @@ local function make_entry_from_bookmarks(opts)
 
     local make_display = function(entry)
         local filename
-        if not opts.hide_filename then
+        if not opts.path_display then
             filename = entry.filename
             if opts.tail_path then
                 filename = utils.path_tail(filename)
@@ -144,9 +144,9 @@ end
 
 local current_file = function(opts)
     opts = opts or {}
-    opts = vim.tbl_extend('keep', opts, {hide_filename = true})
+    opts = vim.tbl_extend('keep', opts, {path_display = true})
 
-    print("Hide:", opts.hide_filename)
+    print("Hide:", opts.path_display)
 
     make_bookmark_picker({vim.fn.expand('%:p')}, opts)
 end
