@@ -146,8 +146,6 @@ local current_file = function(opts)
     opts = opts or {}
     opts = vim.tbl_extend('keep', opts, {path_display = true})
 
-    print("Hide:", opts.path_display)
-
     make_bookmark_picker({vim.fn.expand('%:p')}, opts)
 end
 
