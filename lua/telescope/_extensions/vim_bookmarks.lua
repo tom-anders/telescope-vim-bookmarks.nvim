@@ -151,6 +151,9 @@ end
 
 return require('telescope').register_extension {
     exports = {
+        -- Default when to argument is given, i.e. :Telescope vim_bookmarks
+        vim_bookmarks = all,
+
         all = all,
         current_file = current_file,
         actions = bookmark_actions
