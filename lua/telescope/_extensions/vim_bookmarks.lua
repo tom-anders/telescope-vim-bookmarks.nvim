@@ -98,9 +98,13 @@ local function make_bookmark_picker(filenames, opts)
     local make_finder = function()
         local bookmarks = get_bookmarks(filenames, opts)
 
-        if vim.tbl_isempty(bookmarks) then 
-            print("No bookmarks!")
-            return
+        if vim.tbl_isempty(bookmarks) then
+            if vim.tbl_isempty(vim.call("nvim_list_uis")) then
+                return
+            else
+                print("No bookmarks!")
+                return
+            end
         end
 
         return finders.new_table {
@@ -118,8 +122,8 @@ local function make_bookmark_picker(filenames, opts)
         previewer = conf.qflist_previewer(opts),
         sorter = conf.generic_sorter(opts),
 
-        attach_mappings = function(prompt_bufnr, map) 
-            local refresh_picker = function() 
+        attach_mappings = function(prompt_bufnr, map)
+            local refresh_picker = function()
                 local new_finder = make_finder()
                 if new_finder then
                     action_state.get_current_picker(prompt_bufnr):refresh(make_finder())
