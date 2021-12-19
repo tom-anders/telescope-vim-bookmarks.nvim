@@ -30,7 +30,7 @@ local function get_bookmarks(files, opts)
                     filename = file,
                     lnum = tonumber(line),
                     col=1,
-                    text = text,
+                    text = text:gsub("^%s+", ""),
                     sign_idx = bookmark.sign_idx,
                 })
             end
