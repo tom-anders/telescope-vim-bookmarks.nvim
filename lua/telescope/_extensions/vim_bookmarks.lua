@@ -79,7 +79,7 @@ local function make_entry_from_bookmarks(opts)
 
             value = entry,
             ordinal = (
-            not opts.ignore_filename and filename
+            not opts.ignore_filename and entry.filename
             or ''
             ) .. ' ' .. entry.text,
             display = make_display,
