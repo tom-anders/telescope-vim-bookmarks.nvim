@@ -10,6 +10,8 @@ local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 local bookmark_actions = require('telescope._extensions.vim_bookmarks.actions')
 
+local config = {}
+
 local function get_bookmarks(files, opts)
     opts = opts or {}
     local bookmarks = {}
@@ -18,7 +20,8 @@ local function get_bookmarks(files, opts)
         for _,line in ipairs(vim.fn['bm#all_lines'](file)) do
             local bookmark = vim.fn['bm#get_bookmark_by_line'](file, line)
 
-            local text = bookmark.annotation ~= "" and "Annotation: " .. bookmark.annotation or bookmark.content
+            local annotation = bookmark.annotation
+            local text = bookmark.content
             if text == "" then
                 text = "(empty line)"
             end
@@ -31,6 +34,7 @@ local function get_bookmarks(files, opts)
                     lnum = tonumber(line),
                     col=1,
                     text = text,
+                    annotation = annotation,
                     sign_idx = bookmark.sign_idx,
                 })
             end
@@ -49,6 +53,7 @@ local function make_entry_from_bookmarks(opts)
         items = {
             { width = opts.width_line or 5 },
             { width = opts.width_text or 60 },
+            { width = opts.width_annotation or 20 },
             { remaining = true }
         }
     }
@@ -69,6 +74,7 @@ local function make_entry_from_bookmarks(opts)
         return displayer {
             line_info,
             entry.text:gsub(".* | ", ""),
+            entry.annotation,
             filename,
         }
     end
@@ -88,6 +94,7 @@ local function make_entry_from_bookmarks(opts)
             lnum = entry.lnum,
             col = 1,
             text = entry.text,
+            annotation = entry.annotation,
         }
     end
 end
@@ -139,6 +146,8 @@ local function make_bookmark_picker(filenames, opts)
 end
 
 local all = function(opts)
+    opts = opts or {}
+    for k, v in pairs(config) do opts[k] = v end
     make_bookmark_picker(vim.fn['bm#all_files'](), opts)
 end
 
@@ -150,6 +159,9 @@ local current_file = function(opts)
 end
 
 return require('telescope').register_extension {
+    setup = function(opts)
+      config = opts or {}
+    end,
     exports = {
         -- Default when to argument is given, i.e. :Telescope vim_bookmarks
         vim_bookmarks = all,
