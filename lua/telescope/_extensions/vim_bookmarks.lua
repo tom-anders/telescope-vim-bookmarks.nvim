@@ -10,6 +10,24 @@ local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 local bookmark_actions = require('telescope._extensions.vim_bookmarks.actions')
 
+function string.starts(String,Start)
+    return string.sub(String,1,string.len(Start))==Start
+end
+
+local function get_text(annotation)
+    local ret = "Mark: " .. annotation
+    if annotation:starts("@todo") then
+      ret = '☑️ ' .. annotation
+    elseif annotation:starts("@warn") then
+      ret = '⚠️ ' .. annotation
+    elseif annotation:starts("@fix") then
+      ret = '🐞 ' .. annotation
+    elseif annotation:starts("@") then
+      ret = ' ' .. annotation
+    end
+    return ret
+end
+
 local function get_bookmarks(files, opts)
     opts = opts or {}
     local bookmarks = {}
@@ -18,7 +36,7 @@ local function get_bookmarks(files, opts)
         for _,line in ipairs(vim.fn['bm#all_lines'](file)) do
             local bookmark = vim.fn['bm#get_bookmark_by_line'](file, line)
 
-            local text = bookmark.annotation ~= "" and "Annotation: " .. bookmark.annotation or bookmark.content
+            local text = bookmark.annotation ~= "" and get_text(bookmark.annotation) or bookmark.content
             if text == "" then
                 text = "(empty line)"
             end
