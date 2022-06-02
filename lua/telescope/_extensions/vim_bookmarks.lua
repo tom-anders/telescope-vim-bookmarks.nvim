@@ -16,11 +16,12 @@ end
 
 local function get_text(annotation)
     local ret = "Mark: " .. annotation
-    if annotation:starts("@todo") then
+    local pref = string.sub(annotation,1,2)
+    if pref == "@t" then
       ret = '☑️ ' .. annotation
-    elseif annotation:starts("@warn") then
+    elseif pref == "@w" then
       ret = '⚠️ ' .. annotation
-    elseif annotation:starts("@fix") then
+    elseif pref == "@f" then
       ret = '🐞 ' .. annotation
     elseif annotation:starts("@") then
       ret = ' ' .. annotation
