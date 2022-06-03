@@ -13,20 +13,14 @@ local bookmark_actions = require('telescope._extensions.vim_bookmarks.actions')
 function string.starts(String,Start)
     return string.sub(String,1,string.len(Start))==Start
 end
-
+local texts = {["@t"] = "☑️ ",["@w"] = "⚠️ ",["@f"] = "⛏ ",["@n"] = " "}
 local function get_text(annotation)
-    local ret = "Mark: " .. annotation
     local pref = string.sub(annotation,1,2)
-    if pref == "@t" then
-      ret = '☑️ ' .. annotation
-    elseif pref == "@w" then
-      ret = '⚠️ ' .. annotation
-    elseif pref == "@f" then
-      ret = '🐞 ' .. annotation
-    elseif annotation:starts("@") then
-      ret = ' ' .. annotation
+    local ret = texts[pref]
+    if  ret == nil then
+      ret = '♠ '
     end
-    return ret
+    return ret .. annotation
 end
 
 local function get_bookmarks(files, opts)
