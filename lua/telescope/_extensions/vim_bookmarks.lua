@@ -55,7 +55,7 @@ end
 
 local function make_entry_from_bookmarks(opts)
     opts = opts or {}
-    opts.tail_path = utils.get_default(opts.tail_path, true)
+    opts.tail_path = vim.F.if_nil(opts.tail_path, true)
 
     local displayer = entry_display.create {
         separator = "▏",
