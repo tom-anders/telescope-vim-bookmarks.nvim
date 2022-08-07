@@ -13,9 +13,14 @@ local bookmark_actions = require('telescope._extensions.vim_bookmarks.actions')
 local function get_bookmarks(files, opts)
     opts = opts or {}
     local bookmarks = {}
-
+    local lines = {}
+    
     for _,file in ipairs(files) do
         for _,line in ipairs(vim.fn['bm#all_lines'](file)) do
+            table.insert(lines,tonumber(line))
+            table.sort(lines)
+        end
+        for _,line in ipairs(lines) do
             local bookmark = vim.fn['bm#get_bookmark_by_line'](file, line)
 
             local text = bookmark.annotation ~= "" and "Annotation: " .. bookmark.annotation or bookmark.content
