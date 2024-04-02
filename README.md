@@ -1,3 +1,8 @@
+# NOTE
+
+This plugin is unmaintained, since I'm not using vim-bookmarks anymore. It's possible that things will not work anymore with recent versions of telescope and/or vim-bookmarks.
+If somebody wants to take over as a maintainer, let me know.
+
 # telescope-vim-bookmarks.nvim
 
 [Telescope](https://github.com/nvim-telescope/telescope.nvim) picker for the [vim-bookmarks](https://github.com/MattesGroeger/vim-bookmarks) plugin.
